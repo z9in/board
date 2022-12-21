@@ -22,13 +22,13 @@
             <input type="submit" value="보내기">
         </form>
         <h2>글 목록</h2>
-        <form action="/remove" method="post">
-            <%for(i=(posts.length-1);i>=0;i--){%>
-                    <label class="text" for="text"><%=(i+1)+". "+posts[i]%> &nbsp;&nbsp;&nbsp; | </label>
-                    <input type="password" name="pwd" placeholder="비밀번호 입력">
-                    <button class="clear" type="submit" name="text" value="<%=nums[i]%>">삭제</button><br><br>
-            <%}%>
+        <%for(i=(posts.length-1);i>=0;i--){%>
+        <form action="/remove/<%=i%>" method="post">
+            <label class="text" for="pwd"><%=(i+1)+". "+posts[i]%> | </label>
+            <input type="password" name="pwd" placeholder="비밀번호 입력">
+            <button class="clear" type="submit">삭제</button><br><br>
         </form>  
+        <%}%>
         
     </div>
     
