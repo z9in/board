@@ -2,9 +2,11 @@ const express = require('express');
 const app = express();
 const fs = require('fs');
 const readFile = fs.readFileSync('DBMS.json', 'utf-8');
+const readFilePwd = fs.readFileSync('pwd.json', 'utf-8');
 const jsonDB = JSON.parse(readFile);
+const jsonPwd = JSON.parse(readFilePwd);
 let posts = [...jsonDB];
-console.log(posts);
+let number = [...jsonPwd];
 
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
@@ -13,7 +15,7 @@ app.use(express.urlencoded({extended:true}));
 
 
 app.get('/', (req, res)=>{
-    res.render('index.ejs', {posts});
+    res.render('index.ejs', {posts, number});
 })
 
 app.get('/about',(req,res)=>{
@@ -21,20 +23,43 @@ app.get('/about',(req,res)=>{
 })
 
 app.post('/create', (req, res)=>{
-    let post = req.body.post;
-    posts.push(post);
-    console.log(posts);
-    fs.writeFileSync('DBMS.json', JSON.stringify(posts));
-    res.redirect('/')
+    let pwd = req.body.pwd;
+    let pwdq = Boolean(pwd);
+    console.log(pwdq)
+    if(pwdq == false) {
+        res.send("<script>alert('비밀번호를 입력하세요'); window.location.replace('/');</script>")
+    }else {
+        let post = req.body.post;
+        posts.push(post);
+        number.push(pwd);
+        fs.writeFileSync('DBMS.json', JSON.stringify(posts));
+        fs.writeFileSync('pwd.json', JSON.stringify(number));
+        res.redirect('/')
+    }
+    
+
 })
 
 app.post('/remove', (req,res)=>{
-    let num = req.body.text;
-    console.log(num);
-    posts.splice(num,1);
-    console.log(posts);
-    fs.writeFileSync('DBMS.json',JSON.stringify(posts));
-    res.redirect('/');
+    let q = req.body.text
+    let pwd = req.body.pwd;
+   
+    if(Boolean(pwd) == false) {
+        res.send("<script>alert('비밀번호를 입력하세요'); window.location.replace('/');</script>")
+    }else {
+        let num = number.indexOf(pwd);
+        if(q==num) {
+            console.log(num);
+            posts.splice(num,1);
+            number.splice(num,1);
+            fs.writeFileSync('DBMS.json',JSON.stringify(posts));
+            fs.writeFileSync('pwd.json',JSON.stringify(number));
+            res.redirect('/');
+        }else {
+          res.send("<script>alert('비밀번호가 틀렸습니다.'); window.location.replace('/');</script>")
+        }
+    }
+    
 })
 
 app.listen(3005, (req, res)=>{
